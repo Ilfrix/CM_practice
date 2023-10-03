@@ -29,12 +29,13 @@ def get_info(package) -> list:
                 break
 
         first[i] = first[i].replace('-', '_')
+        first[i] = first[i].replace('.', '_')
         first[i] = first[i][:index]
     return first
 
 
 def make_graph(list_dependecy) -> str:
-    result = "digraph{\n"
+    result = f"digraph {sys.argv[1]}" + '{\n'
     if (list_dependecy == None):
         return result + f'{sys.argv[1]}\n' + '}'
 
