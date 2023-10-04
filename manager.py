@@ -1,7 +1,7 @@
 import sys
 import requests
 
-def check(data) -> bool :
+def check_json(data) -> bool :
     flag_not_found = False
     flag_no_info = False
     flag_no_data = False
@@ -12,26 +12,32 @@ def check(data) -> bool :
         flag_no_data = (data['info']['requires_dist'] == None)
     return flag_not_found or flag_no_info or flag_no_data
 
+def check_liter(elem) -> bool :
+    small = ('a' <= elem <= 'z')
+    big = ('A' <= elem <= 'Z')
+    is_num = elem.isnumeric()
+    is_mark = (elem in ['-', '.'])
+    return not (small or big or is_num or is_mark)
+
 def get_info(package) -> list:
     url=f"https://pypi.org/pypi/{package}/json"
     response = requests.get(url)
     data = response.json()
-    if (check(data)):
+    if (check_json(data)):
         return None
-    first = data["info"]["requires_dist"]
+    dependence = data["info"]["requires_dist"]
     
-    for i in range (len(first)):
-        index = len(first[i])
-        for j in range (len(first[i])):
-            if (not (('a' <= first[i][j] <= 'z') or ('A' <= first[i][j] <= 'Z' ) \
-              or (first[i][j] in ['-', '.']) or (first[i][j].isnumeric()))):
+    for i in range (len(dependence)):
+        index = len(dependence[i])
+        for j in range (len(dependence[i])):
+            if (check_liter(dependence[i][j])):
                 index = j
                 break
 
-        first[i] = first[i].replace('-', '_')
-        first[i] = first[i].replace('.', '_')
-        first[i] = first[i][:index]
-    return first
+        dependence[i] = dependence[i].replace('-', '_')
+        dependence[i] = dependence[i].replace('.', '_')
+        dependence[i] = dependence[i][:index]
+    return dependence
 
 
 def make_graph(list_dependecy) -> str:
